@@ -1,0 +1,4 @@
+interface:
+  display_name: "项目记忆初始化"
+  short_description: "为仓库初始化三层 memory。"
+  default_prompt: "使用 $project-memory-bootstrap 检查当前仓库，识别其稳定上下文，并创建或更新一套适配 Codex 的 `memory/` 结构，包含 `session`、`project`、`long_term` 三层以及与 `AGENTS.md` 的工作流接入。"
