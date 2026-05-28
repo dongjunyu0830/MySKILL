@@ -1,0 +1,961 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 12px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--figma-color-bg);
+        color: var(--figma-color-text);
+      }
+
+      main {
+        display: flex;
+        min-height: 620px;
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 650;
+        line-height: 20px;
+      }
+
+      p {
+        margin: 0;
+        color: var(--figma-color-text-secondary);
+        line-height: 18px;
+      }
+
+      .status {
+        min-height: 38px;
+        border: 1px solid var(--figma-color-border);
+        border-radius: 6px;
+        padding: 9px 10px;
+        background: var(--figma-color-bg-secondary);
+        line-height: 16px;
+      }
+
+      .status strong {
+        color: var(--figma-color-text);
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      label,
+      .field-title {
+        color: var(--figma-color-text-secondary);
+        font-weight: 550;
+      }
+
+      select {
+        width: 100%;
+        height: 32px;
+        border: 1px solid var(--figma-color-border);
+        border-radius: 6px;
+        background: var(--figma-color-bg);
+        color: var(--figma-color-text);
+        padding: 0 8px;
+      }
+
+      .layer-list {
+        max-height: 245px;
+        overflow: auto;
+        border: 1px solid var(--figma-color-border);
+        border-radius: 6px;
+        background: var(--figma-color-bg);
+      }
+
+      .layer {
+        display: grid;
+        grid-template-columns: 20px 22px minmax(0, 1fr) auto 28px;
+        align-items: center;
+        min-height: 34px;
+        gap: 6px;
+        padding: 6px 8px;
+        border-bottom: 1px solid var(--figma-color-border);
+      }
+
+      .layer:last-child {
+        border-bottom: 0;
+      }
+
+      .layer input {
+        margin: 0;
+      }
+
+      .name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .name.has-children {
+        font-weight: 600;
+      }
+
+      .meta {
+        color: var(--figma-color-text-secondary);
+        font-size: 11px;
+      }
+
+      .toggle,
+      .icon-button {
+        display: inline-grid;
+        place-items: center;
+        width: 22px;
+        height: 22px;
+        border: 0;
+        border-radius: 4px;
+        padding: 0;
+        color: var(--figma-color-text-secondary);
+        background: transparent;
+      }
+
+      .toggle:hover,
+      .icon-button:hover {
+        background: var(--figma-color-bg-hover);
+        color: var(--figma-color-text);
+      }
+
+      .toggle-spacer {
+        width: 22px;
+        height: 22px;
+      }
+
+      .preview {
+        position: fixed;
+        z-index: 20;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: 10px;
+        width: min(390px, calc(100vw - 24px));
+        max-height: min(360px, calc(100vh - 24px));
+        border: 1px solid var(--figma-color-border);
+        border-radius: 6px;
+        padding: 10px;
+        background: var(--figma-color-bg-secondary);
+        box-shadow: 0 12px 32px rgb(0 0 0 / 22%);
+      }
+
+      .preview[hidden] {
+        display: none;
+      }
+
+      .preview-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .preview-title {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 650;
+      }
+
+      .preview-meta {
+        margin-top: 2px;
+        color: var(--figma-color-text-secondary);
+        font-size: 11px;
+      }
+
+      .preview-body {
+        display: block;
+        height: 220px;
+        min-height: 120px;
+        overflow: auto;
+        border: 1px solid var(--figma-color-border);
+        border-radius: 4px;
+      }
+
+      .preview-body.bg-grid {
+        background:
+          linear-gradient(45deg, #d0d4dc 25%, transparent 25%),
+          linear-gradient(-45deg, #d0d4dc 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #d0d4dc 75%),
+          linear-gradient(-45deg, transparent 75%, #d0d4dc 75%);
+        background-color: #f5f6f8;
+        background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+        background-size: 16px 16px;
+      }
+
+      .preview-body.bg-dark {
+        background: #181b22;
+      }
+
+      .preview-body.bg-light {
+        background: #ffffff;
+      }
+
+      .preview-body.bg-dark #previewHint {
+        color: #f5f6f8;
+      }
+
+      .preview-body img {
+        display: none;
+        width: auto;
+        height: auto;
+        max-width: none;
+        max-height: none;
+        object-fit: contain;
+      }
+
+      .preview-body.is-fit {
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+      }
+
+      .preview-body.is-fit img {
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      .preview-zoom {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .preview-controls {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .preview-bg {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .zoom-label {
+        min-width: 36px;
+        color: var(--figma-color-text-secondary);
+        font-size: 11px;
+        text-align: center;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        margin-top: auto;
+      }
+
+      button {
+        height: 32px;
+        border: 1px solid var(--figma-color-border);
+        border-radius: 6px;
+        background: var(--figma-color-bg);
+        color: var(--figma-color-text);
+        padding: 0 12px;
+        font: inherit;
+        font-weight: 600;
+      }
+
+      button.small {
+        height: 28px;
+        padding: 0 9px;
+        font-weight: 550;
+      }
+
+      button.primary {
+        flex: 1;
+        border-color: var(--figma-color-bg-brand);
+        background: var(--figma-color-bg-brand);
+        color: var(--figma-color-text-onbrand);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      button.is-active {
+        border-color: var(--figma-color-bg-brand);
+        background: var(--figma-color-bg-brand-tertiary);
+        color: var(--figma-color-text-brand);
+      }
+
+      .error {
+        min-height: 18px;
+        color: var(--figma-color-text-danger);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div>
+        <h1>Group to PNG</h1>
+        <p>选中一个组或 Frame，勾选任意层级里要打进图片的图层。</p>
+      </div>
+
+      <div class="status" id="status">读取选区中...</div>
+
+      <div class="toolbar">
+        <button class="small" id="selectNonText">选择非文字叶子</button>
+        <button class="small" id="selectAll">全选</button>
+        <button class="small" id="clearAll">清空</button>
+        <button class="small" id="expandAll">全部展开</button>
+        <button class="small" id="collapseAll">全部收起</button>
+        <button class="small" id="refresh">刷新</button>
+      </div>
+
+      <div class="field">
+        <div class="field-title">组内图层</div>
+        <div class="layer-list" id="layerList"></div>
+      </div>
+
+      <div class="preview" id="previewPanel" hidden>
+        <div class="preview-head">
+          <div>
+            <div class="preview-title" id="previewTitle">预览</div>
+            <div class="preview-meta" id="previewMeta"></div>
+          </div>
+          <button class="small" id="closePreview">关闭</button>
+          <div class="preview-controls">
+            <div class="preview-zoom">
+              <button class="small" id="zoomOut">-</button>
+              <button class="small" id="zoomFit">适应</button>
+              <button class="small" id="zoomActual">100%</button>
+              <button class="small" id="zoomIn">+</button>
+              <span class="zoom-label" id="zoomLabel">适应</span>
+            </div>
+            <div class="preview-bg" aria-label="预览背景">
+              <button class="small is-active" id="bgAuto" title="自动选择预览背景">自动</button>
+              <button class="small" id="bgDark" title="深色预览背景">深</button>
+              <button class="small" id="bgLight" title="浅色预览背景">浅</button>
+              <button class="small" id="bgGrid" title="透明棋盘格背景">格</button>
+            </div>
+          </div>
+        </div>
+        <div class="preview-body is-fit bg-grid" id="previewBody">
+          <p id="previewHint">生成预览中...</p>
+          <img id="previewImage" alt="Layer preview" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="scale">PNG 倍率</label>
+          <select id="scale">
+            <option value="1">1x</option>
+            <option value="2" selected>2x</option>
+            <option value="3">3x</option>
+            <option value="4">4x</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="placement">PNG 层级</label>
+          <select id="placement">
+            <option value="bottom" selected>所选最底层</option>
+            <option value="top">所选最顶层</option>
+          </select>
+        </div>
+      </div>
+
+      <p id="error" class="error"></p>
+
+      <div class="actions">
+        <button id="cancel">关闭</button>
+        <button class="primary" id="bake" disabled>生成并删除所选块</button>
+      </div>
+    </main>
+
+    <script>
+      const statusEl = document.getElementById("status");
+      const errorEl = document.getElementById("error");
+      const bakeButton = document.getElementById("bake");
+      const cancelButton = document.getElementById("cancel");
+      const scaleInput = document.getElementById("scale");
+      const placementInput = document.getElementById("placement");
+      const layerListEl = document.getElementById("layerList");
+      const selectNonTextButton = document.getElementById("selectNonText");
+      const selectAllButton = document.getElementById("selectAll");
+      const clearAllButton = document.getElementById("clearAll");
+      const expandAllButton = document.getElementById("expandAll");
+      const collapseAllButton = document.getElementById("collapseAll");
+      const refreshButton = document.getElementById("refresh");
+      const previewPanel = document.getElementById("previewPanel");
+      const previewTitle = document.getElementById("previewTitle");
+      const previewMeta = document.getElementById("previewMeta");
+      const previewBody = document.getElementById("previewBody");
+      const previewHint = document.getElementById("previewHint");
+      const previewImage = document.getElementById("previewImage");
+      const zoomOutButton = document.getElementById("zoomOut");
+      const zoomFitButton = document.getElementById("zoomFit");
+      const zoomActualButton = document.getElementById("zoomActual");
+      const zoomInButton = document.getElementById("zoomIn");
+      const zoomLabel = document.getElementById("zoomLabel");
+      const closePreviewButton = document.getElementById("closePreview");
+      const bgAutoButton = document.getElementById("bgAuto");
+      const bgDarkButton = document.getElementById("bgDark");
+      const bgLightButton = document.getElementById("bgLight");
+      const bgGridButton = document.getElementById("bgGrid");
+
+      let rootId = null;
+      let children = [];
+      let childById = new Map();
+      let childrenByParentId = new Map();
+      let checkedIds = new Set();
+      let expandedIds = new Set();
+      let validRoot = false;
+      let previewUrl = "";
+      let previewZoom = "fit";
+      let previewBackgroundMode = "auto";
+      let previewAutoBackground = "grid";
+
+      function selectedIds() {
+        return Array.from(checkedIds);
+      }
+
+      function directChildrenOf(id) {
+        return childrenByParentId.get(id) || [];
+      }
+
+      function subtreeIdsOf(id) {
+        const ids = [id];
+        directChildrenOf(id).forEach((child) => {
+          ids.push(...subtreeIdsOf(child.id));
+        });
+        return ids;
+      }
+
+      function descendantIdsOf(id) {
+        return subtreeIdsOf(id).filter((itemId) => itemId !== id);
+      }
+
+      function ancestorIdsOf(child) {
+        const ids = [];
+        let parentId = child.parentId;
+
+        while (parentId && parentId !== rootId) {
+          ids.push(parentId);
+          const parent = childById.get(parentId);
+          parentId = parent ? parent.parentId : null;
+        }
+
+        return ids;
+      }
+
+      function checkboxStateFor(child) {
+        if (child.hasChildren) {
+          const descendantIds = descendantIdsOf(child.id);
+          const checkedDescendantCount = descendantIds.filter((id) => checkedIds.has(id)).length;
+
+          if (checkedDescendantCount === 0 && !checkedIds.has(child.id)) return "none";
+          if (checkedDescendantCount === descendantIds.length) return "all";
+          return "mixed";
+        }
+
+        const ids = subtreeIdsOf(child.id);
+        const checkedCount = ids.filter((id) => checkedIds.has(id)).length;
+
+        if (checkedCount === 0) return "none";
+        if (checkedCount === ids.length) return "all";
+        return "mixed";
+      }
+
+      function syncAncestorSelection(child) {
+        ancestorIdsOf(child).forEach((ancestorId) => {
+          const ids = descendantIdsOf(ancestorId);
+          const allChecked = ids.every((id) => checkedIds.has(id));
+
+          if (allChecked) {
+            checkedIds.add(ancestorId);
+          } else {
+            checkedIds.delete(ancestorId);
+          }
+        });
+      }
+
+      function syncAllAncestorSelections() {
+        const containers = children
+          .filter((child) => child.hasChildren)
+          .sort((a, b) => b.depth - a.depth);
+
+        containers.forEach((child) => {
+          const ids = descendantIdsOf(child.id);
+          const allChecked = ids.every((id) => checkedIds.has(id));
+
+          if (allChecked) {
+            checkedIds.add(child.id);
+          } else {
+            checkedIds.delete(child.id);
+          }
+        });
+      }
+
+      function setSubtreeChecked(child, isChecked) {
+        subtreeIdsOf(child.id).forEach((id) => {
+          if (isChecked) {
+            checkedIds.add(id);
+          } else {
+            checkedIds.delete(id);
+          }
+        });
+
+        syncAncestorSelection(child);
+      }
+
+      function updateBakeState() {
+        bakeButton.disabled = !validRoot || selectedIds().length === 0;
+      }
+
+      function setLoading(isLoading) {
+        bakeButton.disabled = isLoading || !validRoot || selectedIds().length === 0;
+        bakeButton.textContent = isLoading ? "生成中..." : "生成并删除所选块";
+      }
+
+      function isVisibleInTree(child) {
+        let parentId = child.parentId;
+
+        while (parentId && parentId !== rootId) {
+          if (!expandedIds.has(parentId)) return false;
+          const parent = childById.get(parentId);
+          if (!parent) return true;
+          parentId = parent.parentId;
+        }
+
+        return true;
+      }
+
+      function eyeIcon() {
+        return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+      }
+
+      function positionPreview(anchor) {
+        const anchorRect = anchor.getBoundingClientRect();
+        const panelWidth = Math.min(390, window.innerWidth - 24);
+        const panelHeight = Math.min(360, window.innerHeight - 24);
+        const left = Math.max(12, Math.min(anchorRect.right + 8, window.innerWidth - panelWidth - 12));
+        const top = Math.max(12, Math.min(anchorRect.top - 8, window.innerHeight - panelHeight - 12));
+
+        previewPanel.style.left = `${left}px`;
+        previewPanel.style.top = `${top}px`;
+      }
+
+      function showPreviewLoading(child, anchor) {
+        errorEl.textContent = "";
+        previewPanel.hidden = false;
+        positionPreview(anchor);
+        previewTitle.textContent = child.name;
+        previewMeta.textContent = child.type;
+        setPreviewZoom("fit");
+        previewAutoBackground = "grid";
+        applyPreviewBackground();
+        previewHint.textContent = "生成预览中...";
+        previewHint.style.display = "block";
+        previewImage.style.display = "none";
+        previewImage.removeAttribute("src");
+      }
+
+      function zoomText() {
+        return previewZoom === "fit" ? "适应" : `${Math.round(previewZoom * 100)}%`;
+      }
+
+      function applyPreviewZoom() {
+        zoomLabel.textContent = zoomText();
+
+        if (previewZoom === "fit") {
+          previewBody.classList.add("is-fit");
+          previewImage.style.width = "";
+          previewImage.style.height = "";
+          return;
+        }
+
+        previewBody.classList.remove("is-fit");
+        if (previewImage.naturalWidth > 0) {
+          previewImage.style.width = `${Math.max(1, Math.round(previewImage.naturalWidth * previewZoom))}px`;
+          previewImage.style.height = "auto";
+        }
+      }
+
+      function setPreviewZoom(value) {
+        previewZoom = value;
+        applyPreviewZoom();
+      }
+
+      function resolvedPreviewBackground() {
+        return previewBackgroundMode === "auto" ? previewAutoBackground : previewBackgroundMode;
+      }
+
+      function applyPreviewBackground() {
+        previewBody.classList.remove("bg-grid", "bg-dark", "bg-light");
+        previewBody.classList.add(`bg-${resolvedPreviewBackground()}`);
+
+        bgAutoButton.classList.toggle("is-active", previewBackgroundMode === "auto");
+        bgDarkButton.classList.toggle("is-active", previewBackgroundMode === "dark");
+        bgLightButton.classList.toggle("is-active", previewBackgroundMode === "light");
+        bgGridButton.classList.toggle("is-active", previewBackgroundMode === "grid");
+      }
+
+      function detectPreviewBackground() {
+        if (!previewImage.naturalWidth || !previewImage.naturalHeight) return "grid";
+
+        const maxSampleSize = 80;
+        const ratio = Math.min(
+          1,
+          maxSampleSize / previewImage.naturalWidth,
+          maxSampleSize / previewImage.naturalHeight
+        );
+        const width = Math.max(1, Math.round(previewImage.naturalWidth * ratio));
+        const height = Math.max(1, Math.round(previewImage.naturalHeight * ratio));
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d", { willReadFrequently: true });
+
+        if (!context) return "grid";
+
+        canvas.width = width;
+        canvas.height = height;
+        context.drawImage(previewImage, 0, 0, width, height);
+
+        const data = context.getImageData(0, 0, width, height).data;
+        let transparentCount = 0;
+        let visibleCount = 0;
+        let luminanceTotal = 0;
+
+        for (let index = 0; index < data.length; index += 4) {
+          const red = data[index];
+          const green = data[index + 1];
+          const blue = data[index + 2];
+          const alpha = data[index + 3];
+
+          if (alpha < 245) transparentCount += 1;
+          if (alpha > 16) {
+            visibleCount += 1;
+            luminanceTotal += 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+          }
+        }
+
+        const pixelCount = width * height;
+        const transparentRatio = transparentCount / pixelCount;
+        if (transparentRatio < 0.02) return "grid";
+
+        const averageLuminance = visibleCount ? luminanceTotal / visibleCount : 128;
+        if (averageLuminance > 150) return "dark";
+        if (averageLuminance < 95) return "light";
+        return "grid";
+      }
+
+      function refreshAutoPreviewBackground() {
+        previewAutoBackground = detectPreviewBackground();
+        applyPreviewBackground();
+      }
+
+      function setPreviewBackground(mode) {
+        previewBackgroundMode = mode;
+        applyPreviewBackground();
+      }
+
+      function nudgePreviewZoom(direction) {
+        const current = previewZoom === "fit" ? 1 : previewZoom;
+        const next = Math.max(0.1, Math.min(4, current + direction * 0.25));
+        setPreviewZoom(next);
+      }
+
+      function renderLayers() {
+        layerListEl.replaceChildren();
+
+        if (!validRoot) {
+          const empty = document.createElement("div");
+          empty.className = "layer";
+          empty.textContent = "没有可显示的子图层。";
+          layerListEl.appendChild(empty);
+          return;
+        }
+
+        const visibleChildren = children.filter(isVisibleInTree);
+
+        visibleChildren.forEach((child) => {
+          const row = document.createElement("div");
+          row.className = "layer";
+          row.style.paddingLeft = 8 + child.depth * 14 + "px";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = child.id;
+          const state = checkboxStateFor(child);
+          checkbox.checked = state === "all";
+          checkbox.indeterminate = state === "mixed";
+          checkbox.addEventListener("change", () => {
+            setSubtreeChecked(child, checkbox.checked);
+            renderLayers();
+            updateBakeState();
+          });
+
+          let toggle;
+          if (child.hasChildren) {
+            toggle = document.createElement("button");
+            toggle.type = "button";
+            toggle.className = "toggle";
+            toggle.textContent = expandedIds.has(child.id) ? "-" : "+";
+            toggle.title = expandedIds.has(child.id) ? "收起" : "展开";
+            toggle.onclick = () => {
+              if (expandedIds.has(child.id)) {
+                expandedIds.delete(child.id);
+              } else {
+                expandedIds.add(child.id);
+              }
+              renderLayers();
+            };
+          } else {
+            toggle = document.createElement("span");
+            toggle.className = "toggle-spacer";
+          }
+
+          const name = document.createElement("div");
+          name.className = "name";
+          name.textContent = child.name;
+          name.title = child.name;
+          if (child.hasChildren) name.classList.add("has-children");
+
+          const meta = document.createElement("div");
+          meta.className = "meta";
+          meta.textContent = child.visible ? child.type : `${child.type} / 隐藏`;
+
+          const previewButton = document.createElement("button");
+          previewButton.type = "button";
+          previewButton.className = "icon-button";
+          previewButton.title = "预览并定位";
+          previewButton.innerHTML = eyeIcon();
+          previewButton.onclick = () => {
+            showPreviewLoading(child, previewButton);
+            parent.postMessage(
+              {
+                pluginMessage: {
+                  type: "preview",
+                  rootId,
+                  nodeId: child.id
+                }
+              },
+              "*"
+            );
+          };
+
+          row.append(checkbox, toggle, name, meta, previewButton);
+          layerListEl.appendChild(row);
+        });
+      }
+
+      function setCheckedBy(predicate) {
+        checkedIds = new Set();
+        children.forEach((child) => {
+          if (predicate(child)) checkedIds.add(child.id);
+        });
+        syncAllAncestorSelections();
+        renderLayers();
+        updateBakeState();
+      }
+
+      function setPreviewImage(message) {
+        const rawBytes = message.bytes;
+        let bytes;
+
+        if (rawBytes instanceof Uint8Array) {
+          bytes = rawBytes;
+        } else if (rawBytes instanceof ArrayBuffer) {
+          bytes = new Uint8Array(rawBytes);
+        } else if (Array.isArray(rawBytes)) {
+          bytes = new Uint8Array(rawBytes);
+        } else {
+          bytes = new Uint8Array(Object.values(rawBytes));
+        }
+
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = URL.createObjectURL(new Blob([bytes], { type: "image/png" }));
+        previewPanel.hidden = false;
+        previewTitle.textContent = message.nodeName;
+        previewMeta.textContent = message.nodeType;
+        previewHint.style.display = "none";
+        previewImage.src = previewUrl;
+        previewImage.onload = () => {
+          refreshAutoPreviewBackground();
+          applyPreviewZoom();
+        };
+        applyPreviewZoom();
+        applyPreviewBackground();
+        previewImage.style.display = "block";
+      }
+
+      window.onmessage = (event) => {
+        const message = event.data.pluginMessage;
+        if (!message) return;
+
+        if (message.type === "root") {
+          errorEl.textContent = "";
+          validRoot = message.valid;
+          rootId = message.rootId || null;
+          children = message.children || [];
+          childById = new Map(children.map((child) => [child.id, child]));
+          childrenByParentId = new Map();
+          children.forEach((child) => {
+            const siblings = childrenByParentId.get(child.parentId) || [];
+            siblings.push(child);
+            childrenByParentId.set(child.parentId, siblings);
+          });
+          checkedIds = new Set(message.defaultSelectedIds || []);
+          syncAllAncestorSelections();
+          expandedIds = new Set(
+            children.filter((child) => child.hasChildren).map((child) => child.id)
+          );
+
+          if (!message.valid) {
+            statusEl.textContent = message.reason;
+            checkedIds = new Set();
+            expandedIds = new Set();
+            renderLayers();
+            updateBakeState();
+            return;
+          }
+
+          statusEl.textContent = `${message.rootName}：${children.length} 个组内图层`;
+          renderLayers();
+          updateBakeState();
+        }
+
+        if (message.type === "done") {
+          setLoading(false);
+        }
+
+        if (message.type === "error") {
+          errorEl.textContent = message.message;
+          setLoading(false);
+        }
+
+        if (message.type === "preview") {
+          setPreviewImage(message);
+        }
+
+        if (message.type === "preview-error") {
+          previewPanel.hidden = false;
+          previewHint.textContent = message.message;
+          previewHint.style.display = "block";
+          previewImage.style.display = "none";
+          setPreviewZoom("fit");
+        }
+      };
+
+      selectNonTextButton.onclick = () => {
+        setCheckedBy((child) => child.visible && child.type !== "TEXT" && !child.hasChildren);
+      };
+
+      selectAllButton.onclick = () => {
+        setCheckedBy(() => true);
+      };
+
+      clearAllButton.onclick = () => {
+        setCheckedBy(() => false);
+      };
+
+      expandAllButton.onclick = () => {
+        expandedIds = new Set(children.filter((child) => child.hasChildren).map((child) => child.id));
+        renderLayers();
+      };
+
+      collapseAllButton.onclick = () => {
+        expandedIds = new Set();
+        renderLayers();
+      };
+
+      refreshButton.onclick = () => {
+        parent.postMessage({ pluginMessage: { type: "refresh" } }, "*");
+      };
+
+      closePreviewButton.onclick = () => {
+        previewPanel.hidden = true;
+      };
+
+      zoomFitButton.onclick = () => {
+        setPreviewZoom("fit");
+      };
+
+      zoomActualButton.onclick = () => {
+        setPreviewZoom(1);
+      };
+
+      zoomOutButton.onclick = () => {
+        nudgePreviewZoom(-1);
+      };
+
+      zoomInButton.onclick = () => {
+        nudgePreviewZoom(1);
+      };
+
+      bgAutoButton.onclick = () => {
+        setPreviewBackground("auto");
+      };
+
+      bgDarkButton.onclick = () => {
+        setPreviewBackground("dark");
+      };
+
+      bgLightButton.onclick = () => {
+        setPreviewBackground("light");
+      };
+
+      bgGridButton.onclick = () => {
+        setPreviewBackground("grid");
+      };
+
+      bakeButton.onclick = () => {
+        setLoading(true);
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: "bake",
+              rootId,
+              childIds: selectedIds(),
+              scale: scaleInput.value,
+              placement: placementInput.value
+            }
+          },
+          "*"
+        );
+      };
+
+      cancelButton.onclick = () => {
+        parent.postMessage({ pluginMessage: { type: "cancel" } }, "*");
+      };
+
+      parent.postMessage({ pluginMessage: { type: "ready" } }, "*");
+    </script>
+  </body>
+</html>
