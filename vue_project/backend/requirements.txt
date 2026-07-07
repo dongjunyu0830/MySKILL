@@ -1,0 +1,9 @@
+# 后端框架
+fastapi
+uvicorn[standard]
+
+# 后续接入模型推理时需要（项目根目录 venv 已安装，可复用）
+# torch
+# torchvision
+# pillow
+# numpy

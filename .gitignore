@@ -1,0 +1,31 @@
+# Python 虚拟环境
+venv/
+.venv/
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# 环境变量
+.env
+
+# macOS 系统文件
+.DS_Store
+
+# 额外下载的数据集（体积大，不入库）
+extra_data/
+
+# Node 依赖
+node_modules/
+
+# first_class 原始数据集（体积大，不入库）
+first_class/BDCI2017-spilt/
+first_class/DFC22-split/
+first_class/WHDLD-spilt/
+
+# init 提交曾在仓库根目录跟踪的数据集（防止误加回）
+/BDCI2017-spilt/
+/DFC22-split/
+/WHDLD-spilt/

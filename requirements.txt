@@ -1,0 +1,26 @@
+# HTTP 请求
+requests
+
+# 数据处理与科学计算
+numpy
+pandas
+
+# 数据可视化
+matplotlib
+
+# 深度学习（U-Net 遥感分割项目）
+torch
+torchvision
+tqdm
+tensorboard
+pillow
+
+# 测试
+pytest
+
+# 代码格式化与静态检查
+black
+flake8
+
+# 环境变量管理
+python-dotenv

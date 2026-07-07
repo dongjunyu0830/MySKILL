@@ -1,0 +1,41 @@
+@import './base.css';
+
+/* 遥感分割可视化系统主题变量 */
+:root {
+  --seg-bg: #f6f7f9;
+  --seg-surface: #ffffff;
+  --seg-surface-2: #eef0f3;
+  --seg-border: #d9dde3;
+  --seg-text: #1f2430;
+  --seg-text-muted: #6b7280;
+  --seg-accent: #2f81f7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --seg-bg: #14161a;
+    --seg-surface: #1c1f26;
+    --seg-surface-2: #262a33;
+    --seg-border: #333844;
+    --seg-text: #e6e8eb;
+    --seg-text-muted: #9aa1ad;
+    --seg-accent: #4b9bff;
+  }
+}
+
+body {
+  background: var(--seg-bg);
+  color: var(--seg-text);
+}
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  font-weight: normal;
+}
+
+a {
+  text-decoration: none;
+  color: var(--seg-accent);
+}

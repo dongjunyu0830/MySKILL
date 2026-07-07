@@ -1,0 +1,7 @@
+评估时间：2026-07-07 15:32:49
+数据集：BDCI2017（类别数 5）
+使用权重：/Users/dongjunyu/project/home_work/first_class/result/BDCI2017_07061732/checkpoints/unet_best_f1.pth
+mIoU：0.2872
+Precision：0.4413
+Recall：0.4116
+F1：0.3988
